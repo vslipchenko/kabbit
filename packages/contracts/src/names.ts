@@ -55,3 +55,10 @@ export const EVENT_TYPES = {
 } as const;
 
 export type EventType = (typeof EVENT_TYPES)[keyof typeof EVENT_TYPES];
+
+// Command type names (imperative: "do this"), also carried in the envelope's `type` field.
+export const COMMAND_TYPES = {
+  scheduleHousekeepingTask: 'housekeeping-task.schedule',
+} as const;
+
+export type CommandType = (typeof COMMAND_TYPES)[keyof typeof COMMAND_TYPES];
