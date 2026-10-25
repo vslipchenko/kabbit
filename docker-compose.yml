@@ -1,4 +1,4 @@
-# Infrastructure only. Services are added later.
+# Infrastructure plus the services built so far (one shared Dockerfile).
 name: kabbit
 
 services:
@@ -89,6 +89,31 @@ services:
       interval: 5s
       timeout: 5s
       retries: 10
+
+  # --- Services ---------------------------------------------------------------------------
+
+  housekeeping-svc:
+    build:
+      context: .
+      args:
+        SERVICE: housekeeping-svc
+    ports:
+      - "3006:3006"
+    environment:
+      # Inside the compose network: service names, container ports.
+      RABBITMQ_URL: amqp://kabbit:kabbit@rabbitmq:5672
+      DATABASE_URL: postgres://kabbit:kabbit@postgres:5432/housekeeping
+    depends_on:
+      rabbitmq:
+        condition: service_healthy
+      postgres:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://localhost:3006/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
 
 volumes:
   kafka-data:

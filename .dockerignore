@@ -1,0 +1,11 @@
+# Keep the build context small and avoid copying host-built artefacts into images:
+# dependencies and dist/ are always rebuilt inside the image.
+**/node_modules
+**/dist
+.git
+.idea
+.junie
+.vscode
+*.log
+.env
+.env.*
