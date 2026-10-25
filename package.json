@@ -1,0 +1,27 @@
+{
+  "private": true,
+  "name": "kabbit",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "devEngines": {
+    "packageManager": {
+      "name": "pnpm",
+      "version": "12.15.0",
+      "onFail": "download"
+    }
+  },
+  "packageManager": "pnpm@12.15.0",
+  "type": "module",
+  "devDependencies": {
+    "eslint": "^10.13.0",
+    "prettier": "^3.9.10",
+    "typescript": "^7.0.2"
+  }
+}
