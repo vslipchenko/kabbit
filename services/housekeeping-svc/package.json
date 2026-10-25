@@ -6,7 +6,8 @@
   "scripts": {
     "build": "tsc",
     "start": "node dist/main.js",
-    "dev": "tsc --watch --preserveWatchOutput"
+    "dev": "tsc --watch --preserveWatchOutput",
+    "publish-task": "tsx scripts/publish-task.ts"
   },
   "dependencies": {
     "@kabbit/contracts": "workspace:*",
