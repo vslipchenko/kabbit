@@ -206,6 +206,9 @@ importers:
       '@nestjs/platform-express':
         specifier: ^12.2.0
         version: 12.2.0(@nestjs/common@12.2.0(reflect-metadata@0.2.2)(rxjs@7.8.2))(@nestjs/core@12.2.0)
+      amqplib:
+        specifier: ^2.2.0
+        version: 2.2.0
       reflect-metadata:
         specifier: ^0.2.2
         version: 0.2.2
@@ -1644,8 +1647,7 @@ snapshots:
       typed-emitter: 2.1.0
     optional: true
 
-  amqplib@2.2.0:
-    optional: true
+  amqplib@2.2.0: {}
 
   append-field@1.0.0: {}
 
