@@ -1,0 +1,18 @@
+{
+  "extends": "../../tsconfig.base.json",
+  "compilerOptions": {
+    // NestJS 12 is ESM-only, so this service is ESM: relative imports need a `.js` extension.
+    "module": "nodenext",
+    "moduleResolution": "nodenext",
+    "rootDir": "src",
+    "outDir": "dist",
+    "types": ["node"],
+    // Nest's dependency injection reads constructor parameter types from decorator metadata.
+    // Only tsc emits it: running this service through tsx/esbuild breaks injection.
+    "experimentalDecorators": true,
+    "emitDecoratorMetadata": true,
+    // An application, not a library: nothing imports its types.
+    "declaration": false
+  },
+  "include": ["src"]
+}
