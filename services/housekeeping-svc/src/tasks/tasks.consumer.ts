@@ -3,6 +3,7 @@ import { Ctx, EventPattern, Payload, RmqContext } from '@nestjs/microservices';
 import { COMMAND_TYPES, type DecodeFailure, type ScheduleHousekeepingTask } from '@kabbit/contracts';
 import { ack, deadLetter } from '../messaging/acknowledgements.js';
 import { UNDECODABLE } from '../messaging/envelope.deserializer.js';
+import { TasksService } from './tasks.service.js';
 
 // Message handlers live in controllers, like HTTP routes; the deserializer picks the pattern.
 // `@EventPattern<string>`: without the explicit type argument, Nest 12 picks its typed overload,
@@ -11,12 +12,18 @@ import { UNDECODABLE } from '../messaging/envelope.deserializer.js';
 export class TasksConsumer {
   private readonly logger = new Logger(TasksConsumer.name);
 
+  constructor(private readonly tasks: TasksService) {}
+
   @EventPattern<string>(COMMAND_TYPES.scheduleHousekeepingTask)
   async onScheduleTask(@Payload() task: ScheduleHousekeepingTask, @Ctx() context: RmqContext): Promise<void> {
     try {
+      const created = await this.tasks.schedule(task);
       this.logger.log(
-        `Task ${task.payload.kind} for ${task.payload.propertyId} due ${task.payload.dueDate} (message ${task.messageId})`,
+        created
+          ? `Scheduled ${task.payload.kind} for ${task.payload.propertyId} due ${task.payload.dueDate} (message ${task.messageId})`
+          : `Duplicate message ${task.messageId}, already stored`,
       );
+      // Ack only after the commit: a crash before this line means redelivery, never a lost task.
       ack(context);
     } catch (err) {
       this.logger.error(`Task ${task.messageId} failed: ${(err as Error).message}`);

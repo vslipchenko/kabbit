@@ -1,5 +1,5 @@
 // Dev-only publisher standing in for ops-dispatcher (Phase 1) so housekeeping-svc has work.
-// Usage: pnpm --filter @kabbit/housekeeping-svc publish-task [--count 10] [--kind valid|invalid|malformed|v2]
+// Usage: pnpm --filter @kabbit/housekeeping-svc publish-task [--count 10] [--kind valid|duplicate|invalid|malformed|v2]
 import { randomUUID } from 'node:crypto';
 import { parseArgs } from 'node:util';
 import { connect } from 'amqplib';
@@ -21,6 +21,7 @@ const build = (i: number): Buffer => {
   );
   switch (values.kind) {
     case 'valid':
+    case 'duplicate': // published twice below, like a redelivery
       return Buffer.from(JSON.stringify(task));
     case 'invalid': // poison: a valid envelope with a payload no retry will ever fix
       return Buffer.from(JSON.stringify({ ...task, payload: { ...task.payload, dueDate: 'next tuesday' } }));
@@ -37,10 +38,13 @@ const connection = await connect(values.url);
 // A confirm channel: the broker acknowledges each publish, so "sent" means "stored by RabbitMQ".
 const channel = await connection.createConfirmChannel();
 for (let i = 0; i < Number(values.count); i++) {
-  channel.publish(EXCHANGES.ops, ROUTING_KEYS.housekeepingTaskCleaning, build(i), {
-    persistent: true,
-    contentType: 'application/json',
-  });
+  const content = build(i);
+  for (let copy = 0; copy < (values.kind === 'duplicate' ? 2 : 1); copy++) {
+    channel.publish(EXCHANGES.ops, ROUTING_KEYS.housekeepingTaskCleaning, content, {
+      persistent: true,
+      contentType: 'application/json',
+    });
+  }
 }
 await channel.waitForConfirms();
 console.log(`Published ${values.count} ${values.kind} task(s) to ${EXCHANGES.ops}`);
