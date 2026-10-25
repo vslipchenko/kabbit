@@ -203,9 +203,15 @@ importers:
       '@nestjs/core':
         specifier: ^12.2.0
         version: 12.2.0(@nestjs/common@12.2.0(reflect-metadata@0.2.2)(rxjs@7.8.2))(@nestjs/microservices@12.2.0)(@nestjs/platform-express@12.2.0)(reflect-metadata@0.2.2)(rxjs@7.8.2)
+      '@nestjs/microservices':
+        specifier: ^12.2.0
+        version: 12.2.0(@nestjs/common@12.2.0(reflect-metadata@0.2.2)(rxjs@7.8.2))(@nestjs/core@12.2.0)(amqp-connection-manager@5.0.1(amqplib@2.2.0))(amqplib@2.2.0)(reflect-metadata@0.2.2)(rxjs@7.8.2)
       '@nestjs/platform-express':
         specifier: ^12.2.0
         version: 12.2.0(@nestjs/common@12.2.0(reflect-metadata@0.2.2)(rxjs@7.8.2))(@nestjs/core@12.2.0)
+      amqp-connection-manager:
+        specifier: ^5.0.1
+        version: 5.0.1(amqplib@2.2.0)
       amqplib:
         specifier: ^2.2.0
         version: 2.2.0
@@ -1512,7 +1518,6 @@ snapshots:
     optionalDependencies:
       amqp-connection-manager: 5.0.1(amqplib@2.2.0)
       amqplib: 2.2.0
-    optional: true
 
   '@nestjs/platform-express@12.2.0(@nestjs/common@12.2.0(reflect-metadata@0.2.2)(rxjs@7.8.2))(@nestjs/core@12.2.0)':
     dependencies:
@@ -1540,16 +1545,13 @@ snapshots:
   '@types/chai-as-promised@8.0.2':
     dependencies:
       '@types/chai': 5.2.3
-    optional: true
 
   '@types/chai@5.2.3':
     dependencies:
       '@types/deep-eql': 4.0.2
       assertion-error: 2.0.1
-    optional: true
 
-  '@types/deep-eql@4.0.2':
-    optional: true
+  '@types/deep-eql@4.0.2': {}
 
   '@types/esrecurse@4.3.1': {}
 
@@ -1645,14 +1647,12 @@ snapshots:
       amqplib: 2.2.0
       promise-breaker: 7.0.0
       typed-emitter: 2.1.0
-    optional: true
 
   amqplib@2.2.0: {}
 
   append-field@1.0.0: {}
 
-  assertion-error@2.0.1:
-    optional: true
+  assertion-error@2.0.1: {}
 
   balanced-match@4.0.4: {}
 
@@ -2109,8 +2109,7 @@ snapshots:
 
   prettier@3.9.10: {}
 
-  promise-breaker@7.0.0:
-    optional: true
+  promise-breaker@7.0.0: {}
 
   proxy-addr@2.0.8:
     dependencies:
@@ -2258,7 +2257,6 @@ snapshots:
   typed-emitter@2.1.0:
     optionalDependencies:
       rxjs: 7.8.2
-    optional: true
 
   typescript@7.0.2:
     optionalDependencies:
