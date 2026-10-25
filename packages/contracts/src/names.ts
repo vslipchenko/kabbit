@@ -32,6 +32,23 @@ export const ROUTING_PATTERNS = {
 
 export type RoutingPattern = (typeof ROUTING_PATTERNS)[keyof typeof ROUTING_PATTERNS];
 
+// Service names carried in the envelope's `producer` field.
+export const SERVICES = {
+  gateway: 'gateway',
+  propertySvc: 'property-svc',
+  reservationSvc: 'reservation-svc',
+  paymentSvc: 'payment-svc',
+  analyticsSvc: 'analytics-svc',
+  channelSvc: 'channel-svc',
+  channelSimulator: 'channel-simulator',
+  opsDispatcher: 'ops-dispatcher',
+  messagingWorker: 'messaging-worker',
+  housekeepingSvc: 'housekeeping-svc',
+  scratch: 'scratch',
+} as const;
+
+export type ServiceName = (typeof SERVICES)[keyof typeof SERVICES];
+
 // Event type names carried in the envelope's `type` field.
 export const EVENT_TYPES = {
   channelReservationReceived: 'channel.reservation.received',

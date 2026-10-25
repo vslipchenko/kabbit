@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { envelopeSchema } from '../envelope';
+import { defineEvent, type EventOf } from '../envelope';
 import { amountMinorSchema, currencySchema } from '../money';
 import { EVENT_TYPES } from '../names';
 
@@ -30,10 +30,10 @@ export const channelReservationReceivedPayloadSchema = z
 
 export type ChannelReservationReceivedPayload = z.infer<typeof channelReservationReceivedPayloadSchema>;
 
-export const channelReservationReceivedSchema = envelopeSchema(
+export const channelReservationReceivedV1 = defineEvent(
   EVENT_TYPES.channelReservationReceived,
   1,
   channelReservationReceivedPayloadSchema,
 );
 
-export type ChannelReservationReceived = z.infer<typeof channelReservationReceivedSchema>;
+export type ChannelReservationReceived = EventOf<typeof channelReservationReceivedV1>;

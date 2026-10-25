@@ -1,13 +1,18 @@
-import { z } from 'zod';
-import { channelReservationReceivedSchema, EVENT_TYPES, type ChannelReservationReceived } from '@kabbit/contracts';
+import { randomUUID } from 'node:crypto';
+import {
+  causedBy,
+  channelReservationReceivedV1,
+  createDecoder,
+  createEnvelope,
+  EVENT_TYPES,
+  SERVICES,
+  type ChannelReservationReceived,
+} from '@kabbit/contracts';
 
-const valid: ChannelReservationReceived = {
-  messageId: '0b9e6f2c-6a8e-4c1f-9d3a-2f6b7c8d9e01',
-  type: EVENT_TYPES.channelReservationReceived,
-  version: 1,
-  occurredAt: '2026-10-25T10:00:00Z',
-  correlationId: 'req-1',
-  payload: {
+// 1. Producing: createEnvelope fills in messageId and occurredAt and validates the result.
+const event: ChannelReservationReceived = createEnvelope(
+  channelReservationReceivedV1,
+  {
     propertyId: 'prop-1',
     channel: 'airbnb',
     guest: { name: 'Ana', email: 'ana@example.com' },
@@ -16,27 +21,47 @@ const valid: ChannelReservationReceived = {
     amount: 37500, // 375.00 EUR
     currency: 'EUR',
   },
-};
+  { correlationId: randomUUID(), producer: SERVICES.scratch },
+);
+console.log('created:', event.type, event.messageId);
 
-// Untyped on purpose: this is what arrives from the wire.
-const invalid: unknown = {
-  ...valid,
-  messageId: 'not-a-uuid',
-  payload: {
-    ...valid.payload,
-    channel: 'vrbo',
-    guest: { name: 'Ana', email: 'ana-at-example.com' },
-    amount: 375.5,
-    currency: 'eur',
-  },
-};
+// A follow-up message keeps the correlation and points at its cause.
+const followUp = causedBy(event, SERVICES.scratch);
+console.log('caused by:', followUp.causationId === event.messageId, 'same correlation:', followUp.correlationId === event.correlationId);
 
-const parsed = channelReservationReceivedSchema.parse(valid);
-console.log('valid: parsed', parsed.type, 'for', parsed.payload.propertyId);
-
+// 2. A producer can't build an invalid message: createEnvelope throws.
 try {
-  channelReservationReceivedSchema.parse(invalid);
-} catch (err) {
-  if (!(err instanceof z.ZodError)) throw err;
-  console.error('invalid: rejected\n' + z.prettifyError(err));
+  createEnvelope(
+    channelReservationReceivedV1,
+    { ...event.payload, amount: 375.5 },
+    { correlationId: randomUUID(), producer: SERVICES.scratch },
+  );
+} catch {
+  console.log('createEnvelope rejected a float amount');
+}
+
+// 3. Consuming: the decoder sorts every raw message into one outcome.
+const decode = createDecoder([channelReservationReceivedV1]);
+const wire = (message: object) => Buffer.from(JSON.stringify(message)); // what a broker hands you
+
+const cases: Record<string, string | Uint8Array> = {
+  'valid': wire(event),
+  'not JSON': 'hello',
+  'not an envelope': wire({ hello: 'world' }),
+  'bad payload': wire({ ...event, payload: { ...event.payload, channel: 'vrbo', currency: 'eur' } }),
+  'newer version': wire({ ...event, version: 2 }),
+  'other type': wire({ ...event, type: 'reservation.confirmed' }),
+};
+
+for (const [name, raw] of Object.entries(cases)) {
+  const result = decode(raw);
+  if (result.ok) {
+    // `result.event` is fully typed: switch on type to handle each message kind.
+    switch (result.event.type) {
+      case EVENT_TYPES.channelReservationReceived:
+        console.log(`${name}: ok, property ${result.event.payload.propertyId}`);
+    }
+  } else {
+    console.log(`${name}: ${result.reason}\n  ${result.error.replaceAll('\n', '\n  ')}`);
+  }
 }

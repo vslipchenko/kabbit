@@ -3,4 +3,4 @@ packages:
   - "services/*"
   - "apps/*"
 allowBuilds:
-  esbuild: set this to true or false
+  esbuild: true
