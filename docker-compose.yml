@@ -74,7 +74,9 @@ services:
   postgres:
     image: postgres:17
     ports:
-      - "5432:5432"
+      # Host port 5433: a native Windows Postgres often already holds 5432, and connections from
+      # the host would silently reach it instead. Containers still use postgres:5432.
+      - "5433:5432"
     environment:
       POSTGRES_USER: kabbit
       POSTGRES_PASSWORD: kabbit

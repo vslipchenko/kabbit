@@ -5,7 +5,7 @@ import { z } from 'zod';
 const envSchema = z.object({
   PORT: z.coerce.number().int().positive().default(3006),
   RABBITMQ_URL: z.string().default('amqp://kabbit:kabbit@localhost:5672'),
-  DATABASE_URL: z.string().default('postgres://kabbit:kabbit@localhost:5432/housekeeping'),
+  DATABASE_URL: z.string().default('postgres://kabbit:kabbit@localhost:5433/housekeeping'),
 });
 
 export type Env = z.infer<typeof envSchema>;
