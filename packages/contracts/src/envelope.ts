@@ -68,6 +68,10 @@ export interface EnvelopeContext {
   producer: ServiceName;
   // Defaults to now; pass the business time when it is known (e.g. when the guest booked).
   occurredAt?: string;
+  // Defaults to a random UUID. Pass a deterministic one when the same action can arrive again from
+  // outside (a webhook the channel resends): the repeat then carries the same messageId, and the
+  // consumers' deduplication catches it too.
+  messageId?: string;
 }
 
 // The only way services should build messages: fills in messageId and occurredAt and validates the
@@ -78,7 +82,7 @@ export const createEnvelope = <D extends AnyEventDefinition>(
   context: EnvelopeContext,
 ): EventOf<D> =>
   definition.schema.parse({
-    messageId: crypto.randomUUID(),
+    messageId: context.messageId ?? crypto.randomUUID(),
     type: definition.type,
     version: definition.version,
     occurredAt: context.occurredAt ?? new Date().toISOString(),
