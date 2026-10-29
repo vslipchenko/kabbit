@@ -207,6 +207,9 @@ importers:
       '@kabbit/contracts':
         specifier: workspace:*
         version: link:../../packages/contracts
+      '@kabbit/kafka':
+        specifier: workspace:*
+        version: link:../../packages/kafka
       express:
         specifier: ^5.3.0
         version: 5.3.0
