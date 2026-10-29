@@ -20,10 +20,13 @@ const schema = `
     PRIMARY KEY (channel, external_reservation_id)
   );
 
-  -- Demo data: the listings channel-simulator books.
+  -- Demo data: the listings channel-simulator books. Six properties, because with 3 partitions,
+  -- 3 keys happen to hash onto only 2 of them; these six reach every partition.
   INSERT INTO listings (channel, external_listing_id, property_id) VALUES
     ('airbnb', 'airbnb-1001', 'prop-1'), ('airbnb', 'airbnb-1002', 'prop-2'), ('airbnb', 'airbnb-1003', 'prop-3'),
-    ('booking', 'bk-501', 'prop-1'), ('booking', 'bk-502', 'prop-2'), ('booking', 'bk-503', 'prop-3')
+    ('airbnb', 'airbnb-1004', 'prop-4'), ('airbnb', 'airbnb-1005', 'prop-5'), ('airbnb', 'airbnb-1006', 'prop-6'),
+    ('booking', 'bk-501', 'prop-1'), ('booking', 'bk-502', 'prop-2'), ('booking', 'bk-503', 'prop-3'),
+    ('booking', 'bk-504', 'prop-4'), ('booking', 'bk-505', 'prop-5'), ('booking', 'bk-506', 'prop-6')
   ON CONFLICT DO NOTHING;
 `;
 
