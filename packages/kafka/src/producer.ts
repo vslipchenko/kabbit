@@ -47,7 +47,9 @@ export class EnvelopeProducer {
 
   // Resolves once the broker has stored the message; its offset is in `baseOffset` (not `offset`).
   // The key picks the partition: every message with the same key lands on the same partition, in
-  // the order it was published.
+  // the order it was published. The partition is murmur2(key) % partitionCount, the same hash as
+  // Java's producer (this client sets it; plain librdkafka defaults to CRC32), so services in
+  // different languages agree on where a key goes.
   async publish(topic: string, key: string, envelope: BaseEnvelope): Promise<KafkaJS.RecordMetadata> {
     return this.send(topic, key, Buffer.from(JSON.stringify(envelope)), envelopeHeaders(envelope));
   }
