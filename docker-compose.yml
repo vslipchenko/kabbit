@@ -137,6 +137,69 @@ services:
       retries: 5
       start_period: 10s
 
+  channel-svc:
+    build:
+      context: .
+      args:
+        SERVICE: channel-svc
+    ports:
+      - "3010:3010"
+    environment:
+      DATABASE_URL: postgres://kabbit:kabbit@postgres:5432/channel
+      KAFKA_BROKERS: kafka:9092
+    depends_on:
+      postgres:
+        condition: service_healthy
+      # The topics must exist before anything publishes or subscribes.
+      kafka-init:
+        condition: service_completed_successfully
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://localhost:3010/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+
+  # Plays Airbnb and Booking.com: curl -X POST "localhost:3011/simulate?count=10"
+  channel-simulator:
+    build:
+      context: .
+      args:
+        SERVICE: channel-simulator
+    ports:
+      - "3011:3011"
+    environment:
+      CHANNEL_SVC_URL: http://channel-svc:3010
+    depends_on:
+      channel-svc:
+        condition: service_healthy
+
+  analytics-svc:
+    build:
+      context: .
+      args:
+        SERVICE: analytics-svc
+    # A host port range, so `docker compose up -d --scale analytics-svc=3` works: each replica
+    # takes the next free port. With 3 partitions, a 4th replica would sit idle.
+    ports:
+      - "3020-3023:3005"
+    environment:
+      DATABASE_URL: postgres://kabbit:kabbit@postgres:5432/analytics
+      KAFKA_BROKERS: kafka:9092
+    depends_on:
+      postgres:
+        condition: service_healthy
+      kafka-init:
+        condition: service_completed_successfully
+    # Replicas started together can race to run the migration; a loser exits and is restarted.
+    restart: on-failure
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://localhost:3005/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+
 volumes:
   kafka-data:
   rabbitmq-data:

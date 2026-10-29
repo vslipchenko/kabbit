@@ -15,9 +15,9 @@ import { StatsModule } from './stats/stats.module.js';
         type: 'postgres',
         url: config.get('DATABASE_URL', { infer: true }),
         migrations: [CreateBookingStats1761700000000],
-        // Replicas started together race to run it: the losers fail on the existing tables and
-        // are restarted (compose `restart: on-failure`), finding it applied. In production, run
-        // migrations as a separate deploy step instead.
+        // TypeORM takes no lock while migrating, so replicas started together can race: a loser
+        // fails on the existing tables and is restarted (compose `restart: on-failure`), finding
+        // the migration applied. In production, run migrations as a separate deploy step instead.
         migrationsRun: true,
         synchronize: false,
       }),
