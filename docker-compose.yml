@@ -41,6 +41,28 @@ services:
       retries: 10
       start_period: 20s
 
+  # One-shot: creates the topics, then exits. Auto-creation is off, so partition counts are chosen
+  # here on purpose: they cap how many consumers of one group can work in parallel, and the
+  # count can only ever grow (which remaps keys to partitions).
+  kafka-init:
+    image: apache/kafka:4.1.0
+    depends_on:
+      kafka:
+        condition: service_healthy
+    entrypoint: ["/bin/bash", "-c"]
+    command:
+      - |
+        set -e
+        create() {
+          /opt/kafka/bin/kafka-topics.sh --bootstrap-server kafka:9092 --create --if-not-exists \
+            --topic "$$1" --partitions "$$2" --replication-factor 1
+        }
+        # Normalized channel bookings, keyed by propertyId: 3 partitions, so up to 3 parallel consumers per group.
+        create channel.reservations 3
+        # Dead-letter topic: messages a consumer can never process, parked for inspection.
+        create channel.reservations.dlt 1
+        /opt/kafka/bin/kafka-topics.sh --bootstrap-server kafka:9092 --list
+
   kafka-ui:
     image: kafbat/kafka-ui:v1.3.0
     ports:
