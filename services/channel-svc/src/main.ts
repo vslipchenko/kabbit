@@ -5,7 +5,7 @@ import { connectDatabase } from './db.js';
 const config = loadConfig();
 const pool = await connectDatabase(config.DATABASE_URL);
 
-const server = createApp().listen(config.PORT, () => {
+const server = createApp(config).listen(config.PORT, () => {
   console.log(`channel-svc listening on :${config.PORT}`);
 });
 
