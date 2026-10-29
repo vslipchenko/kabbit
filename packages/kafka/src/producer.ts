@@ -12,11 +12,19 @@ const envelopeHeaders = (envelope: BaseEnvelope): Headers => ({
   producer: envelope.producer,
 });
 
+export interface EnvelopeProducerOptions {
+  // How long `publish` keeps retrying a message (broker down, leader moving) before it rejects.
+  // librdkafka's default is 5 minutes: far too long for a caller waiting on an HTTP response.
+  deliveryTimeoutMs?: number;
+}
+
 export class EnvelopeProducer {
   private readonly producer: KafkaJS.Producer;
 
-  constructor(kafka: KafkaJS.Kafka) {
+  constructor(kafka: KafkaJS.Kafka, { deliveryTimeoutMs = 30_000 }: EnvelopeProducerOptions = {}) {
     this.producer = kafka.producer({
+      // A raw librdkafka setting: those go outside the `kafkaJS` block.
+      'message.timeout.ms': deliveryTimeoutMs,
       kafkaJS: {
         // Wait until every in-sync replica has the message before `publish` resolves.
         acks: -1,
