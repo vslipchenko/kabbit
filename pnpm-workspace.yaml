@@ -4,3 +4,5 @@ packages:
   - "apps/*"
 allowBuilds:
   esbuild: true
+  # Downloads librdkafka's prebuilt native binary for this platform.
+  '@confluentinc/kafka-javascript': true
