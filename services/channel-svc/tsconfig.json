@@ -1,0 +1,13 @@
+{
+  "extends": "../../tsconfig.base.json",
+  "compilerOptions": {
+    // ESM like the NestJS services, so every service follows the same module rules.
+    "module": "nodenext",
+    "moduleResolution": "nodenext",
+    "rootDir": "src",
+    "outDir": "dist",
+    "types": ["node"],
+    "declaration": false
+  },
+  "include": ["src"]
+}
